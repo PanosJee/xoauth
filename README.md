@@ -21,6 +21,6 @@ After the user has successfully authorized your app all you have to do is to use
 
 > import xoauth
 
-> imap_conn = connect_to_gmail(CREDENTIALS, user)
+> imap_conn = connect_to_gmail(CREDENTIALS, email, oauth_token, oauth_token_secret)
 
-Where credentials is a tuple holding the OAuth consumer and secret key and user is a dict containing the g_oauth_token, g_oauth_token_secret and email of the user.
+Where credentials is a tuple holding the OAuth consumer and secret key. The email is the email of user for which the user granted access. The oauth_token and oauth_token_secret are the tokens that the OAuth dance created.
