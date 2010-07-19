@@ -20,6 +20,7 @@ IMAP Authentication
 After the user has successfully authorized your app all you have to do is to use them in order to connect to the IMAP server. Using this python code all you have to do is a one liner:
 
 > import xoauth
+
 > imap_conn = connect_to_gmail(CREDENTIALS, user)
 
 Where credentials is a tuple holding the OAuth consumer and secret key and user is a dict containing the g_oauth_token, g_oauth_token_secret and email of the user.
