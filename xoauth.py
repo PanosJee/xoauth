@@ -1,10 +1,25 @@
 # encoding: utf-8
 #!/usr/bin/pypy
 #
-# Copyright 2010 SocialCaddy Inc.
+# Code to authenicate with xoauth against Gmail originally written by Google Inc.
 #
-# Code to authenicate with xoauth against Gmail
+# Copyright 2010 Google Inc.
 #
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Modified by Panayiotis Papadopoulos at SocialCaddy LLC 2010
+#
+
 import imaplib
 import random
 import base64
@@ -142,12 +157,14 @@ def GenerateOauthSignature(base_string, consumer_secret, token_secret):
 	key = EscapeAndJoin([consumer_secret, token_secret])
 	return GenerateHmacSha1Signature(base_string, key)
 
-def connect_to_gmail(CREDENTIALS, user):
-    """docstring for create_xoauth_string"""
+def connect_to_gmail(CREDENTIALS, email, oauth_token, oauth_token_secret):
+    """
+    Call this function to get an authenticated IMAP connection
+    """
     consumer = OAuthEntity(CREDENTIALS[0], CREDENTIALS[1])
-    access_token = OAuthEntity(user['g_oauth_token'], user['g_oauth_token_secret'])
+    access_token = OAuthEntity(oauth_token, oauth_token_secret)
     xoauth_string = GenerateXOauthString(
-      consumer, access_token, user['email'], 'imap',
+      consumer, access_token, email, 'imap',
       None, str(random.randrange(2**64 - 1)), str(int(time.time())))
 
     # connect to imap
