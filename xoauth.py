@@ -26,7 +26,7 @@ import base64
 import urllib
 import hmac
 import time
-import sha
+from hashlib import sha1 as sha
 
 class OAuthEntity(object):
   """Represents consumers and tokens in OAuth."""
