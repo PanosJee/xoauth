@@ -21,6 +21,7 @@
 #
 
 import imaplib
+import smtplib
 import random
 import base64
 import urllib
@@ -157,20 +158,32 @@ def GenerateOauthSignature(base_string, consumer_secret, token_secret):
 	key = EscapeAndJoin([consumer_secret, token_secret])
 	return GenerateHmacSha1Signature(base_string, key)
 
-def connect_to_gmail(CREDENTIALS, email, oauth_token, oauth_token_secret):
-    """
-    Call this function to get an authenticated IMAP connection
-    """
+def _get_xoauth_string(CREDENTIALS, user, protocol='imap'):
+    """docstring for get_xoauth"""
     consumer = OAuthEntity(CREDENTIALS[0], CREDENTIALS[1])
-    access_token = OAuthEntity(oauth_token, oauth_token_secret)
+    access_token = OAuthEntity(user['g_oauth_token'], user['g_oauth_token_secret'])
     xoauth_string = GenerateXOauthString(
-      consumer, access_token, email, 'imap',
+      consumer, access_token, user['email'], protocol,
       None, str(random.randrange(2**64 - 1)), str(int(time.time())))
-
-    # connect to imap
-    imap_conn = imaplib.IMAP4_SSL('imap.googlemail.com')
-    #imap_conn.debug = 3
-    imap_conn.authenticate('XOAUTH', lambda x: xoauth_string)
-    imap_conn.select('INBOX')
+    return xoauth_string
     
-    return imap_conn
+def connect_to_gmail(CREDENTIALS, user, protocol='imap'):
+    """docstring for create_xoauth_string"""
+    xoauth_string = _get_xoauth_string(CREDENTIALS, user, protocol)
+    if protocol=='imap':        
+        # connect to imap
+        imap_conn = imaplib.IMAP4_SSL('imap.googlemail.com')
+        #imap_conn.debug = 3
+        imap_conn.authenticate('XOAUTH', lambda x: xoauth_string)
+        imap_conn.select('INBOX')
+    
+        return imap_conn
+    else:
+        smtp_conn = smtplib.SMTP('smtp.googlemail.com', 587)
+        #smtp_conn.set_debuglevel(True)
+        smtp_conn.ehlo()
+        smtp_conn.starttls()
+        smtp_conn.ehlo()
+        smtp_conn.docmd('AUTH', 'XOAUTH ' + base64.b64encode(xoauth_string))
+        
+        return smtp_conn
